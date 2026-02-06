@@ -1,29 +1,23 @@
-name: Secure Node.js CI
+name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+    branches: [main]
 
 jobs:
-  build-scan-push:
+  build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
@@ -31,11 +25,16 @@ jobs:
         run: |
           docker build -t ghcr.io/${{ github.repository }}:latest .
 
-      - name: Run Trivy scan (distroless OS only)
+      - name: Run Trivy scan (distroless, ignore Node)
         run: |
           docker save ghcr.io/${{ github.repository }}:latest -o image.tar
-          trivy image --skip-db-update --exit-code 1 --ignore-unfixed --security-checks vuln,secret \
-            --ignore-policy .trivyignore image.tar || echo "Trivy scan done. Node packages ignored."
+          trivy image \
+            --skip-db-update \
+            --exit-code 1 \
+            --ignore-unfixed \
+            --security-checks vuln,secret \
+            --ignore-policy .trivyignore \
+            image.tar || echo "Trivy scan done. Node packages ignored."
 
       - name: Push Docker image
         run: |
