@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sycamore-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sycamore-api
+  template:
+    metadata:
+      labels:
+        app: sycamore-api
+    spec:
+      containers:
+        - name: api
+          image: node:18-alpine
+          command: ["node", "-e", "setInterval(() => console.log('running'), 10000)"]
+          resources:
+            requests:
+              memory: "64Mi"
+            limits:
+              memory: "128Mi"
