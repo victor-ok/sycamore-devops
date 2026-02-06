@@ -1,9 +1,13 @@
 # Root Cause Analysis
 
 **Summary**: CrashLoopBackOff Investigation.
+
 **Date**: 6th Feb, 2026
+
 **Engineer**: Victor Okafor
+
 **Severity**: Critical
+
 **Status**: Resolved
 
 	
@@ -11,13 +15,13 @@
 
 # Executive Summary
 
-The sycamore-api deployment experienced immediate and continuous pod failures, entering a CrashLoopBackOff state within seconds of deployment. Investigation revealed an intentional memory leak in the container command causing Out-of-Memory (OOM) kills. The issue was resolved by replacing the faulty deployment file with a proper application deployment file, implementing appropriate resource limits.
+The sycamore-api deployment experienced immediate and continuous pod failures, entering a CrashLoopBackOff state within seconds of deployment. Investigation revealed an intentional memory leak in the container command, causing Out-of-Memory (OOM) kills. The issue was resolved by replacing the faulty deployment file with a proper application deployment file and implementing appropriate resource limits.
 
 ## Problem statements
 
  - **Symptoms**: Pod enters CrashLoopBackOff state immediately after deployment.
- - **Impact**: API Service completely unavailable resulting to 100% failure rate.
- - **Frequency**: Every attempt for pod restart attempt fails consistently.
+ - **Impact**: API Service completely unavailable, resulting to 100% failure rate.
+ - **Frequency**: Every attempt for pod restart fails consistently.
  - **Timeline**: Issue persists from initial deployment.
 
 ## Investigation
@@ -68,12 +72,13 @@ entering CrashLoopBackOff
  1.   Apply the fixed manifest
  
 	kubectl apply -f k8s/fixed-manifest.yaml
-2. Verify deployment rollout
-
-kubectl rollout status deployment/sycamore-api
+	
+2.	Verify deployment rollout
+   
+		kubectl rollout status deployment/sycamore-api
 
 ## Results: 
-✅ Both pods running successfully
+✅ Both pods are running successfully
 ✅ Memory usage stable at ~85 MB (well below 256 MB limit)
 ✅ CPU usage normal (~50m, well below 500m limit)
 ✅ Health checks passing consistently
